@@ -32,7 +32,10 @@ jobs:
 
       - name: Build production assets
         working-directory: js
-        run: npx webpack --mode production
+        run: npx webpack --config webpack.config.js
+
+      - name: Show dist output
+        run: ls -lh js/dist/
 
       - name: Commit and push dist files
         uses: stefanzweifel/git-auto-commit-action@v5
