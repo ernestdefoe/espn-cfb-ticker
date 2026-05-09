@@ -1,7 +1,7 @@
 import app from 'flarum/admin/app';
 
 app.initializers.add('ernestdefoe-espn-cfb-ticker', () => {
-    app.extensionData
+    app.registry
         .for('ernestdefoe-espn-cfb-ticker')
         .registerSetting({
             setting: 'ernestdefoe-espn-cfb-ticker.enabled',
