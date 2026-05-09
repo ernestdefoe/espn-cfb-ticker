@@ -1,31 +1,46 @@
 import app from 'flarum/forum/app';
 import { extend } from 'flarum/common/extend';
-import IndexPage from 'flarum/forum/components/IndexPage';
-import CfbTicker from './components/CfbTicker';
+import HeaderSecondary from 'flarum/forum/components/HeaderSecondary';
+import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
 
-app.initializers.add('ernestdefoe-espn-cfb-ticker', () => {
-    // Inject the ticker into every forum page by extending the IndexPage header
-    // and also mounting globally via the forum body.
-    extend(app, 'mount', function () {
-        const enabled = app.forum.attribute('ernestdefoe-espn-cfb-ticker.enabled');
-        if (!enabled && enabled !== undefined) return;
+app.initializers.add('espn-cfb-ticker', () => {
+  const state = {
+    isLoading: true,
+    error: null,
+    items: [],
+  };
 
-        const position = app.forum.attribute('ernestdefoe-espn-cfb-ticker.position') || 'top';
-        const container = document.createElement('div');
-        container.id = 'cfb-ticker-mount';
-        container.setAttribute('data-position', position);
+  extend(HeaderSecondary.prototype, 'items', function (items) {
+    items.add(
+      'espn-cfb-ticker',
+      m(
+        'div.EspnCfbTicker',
+        state.isLoading
+          ? m('div', { className: 'EspnCfbTicker-loading' }, [m(LoadingIndicator), ' Loading CFB ticker...'])
+          : state.error
+          ? m('div', { className: 'EspnCfbTicker-error' }, state.error)
+          : m(
+              'div.EspnCfbTicker-strip',
+              state.items.map((item) => m('span.EspnCfbTicker-item', item))
+            )
+      ),
+      1000
+    );
+  });
 
-        if (position === 'bottom') {
-            document.body.appendChild(container);
-        } else {
-            const forumBody = document.getElementById('app');
-            if (forumBody) {
-                forumBody.insertBefore(container, forumBody.firstChild);
-            } else {
-                document.body.insertBefore(container, document.body.firstChild);
-            }
-        }
-
-        m.mount(container, CfbTicker);
+  app.request({ method: 'GET', url: `${app.forum.attribute('apiUrl')}/cfb-ticker` })
+    .then((payload) => {
+      if (payload.error) {
+        state.error = payload.error;
+      } else {
+        state.items = payload.data || [];
+      }
+    })
+    .catch(() => {
+      state.error = 'Unable to load ESPN CFB ticker.';
+    })
+    .finally(() => {
+      state.isLoading = false;
+      m.redraw();
     });
 });
