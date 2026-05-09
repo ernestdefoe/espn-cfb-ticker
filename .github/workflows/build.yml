@@ -35,7 +35,7 @@ jobs:
 
       - name: Build production assets
         working-directory: js
-        run: npx webpack --config webpack.config.js
+        run: npm run build
 
       - name: Show dist output
         run: ls -lh js/dist/
