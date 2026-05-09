@@ -1,5 +1,4 @@
 import app from 'flarum/admin/app';
-import CfbTickerSettingsPage from './components/CfbTickerSettingsPage';
 
 app.initializers.add('ernestdefoe-espn-cfb-ticker', () => {
     app.extensionData
