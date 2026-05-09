@@ -1,41 +1,47 @@
 const path = require('path');
 
-// Flarum exposes its modules via AMD as nested arrays.
-// e.g. import Component from 'flarum/common/Component'
-//   → external: ['flarum', 'common', 'Component']
-function flarumExternals({ request }, callback) {
-    if (/^flarum\//.test(request)) {
-        const parts = request.split('/');
-        return callback(null, parts, 'amd');
-    }
-    callback();
+function makeConfig(entry, filename) {
+    return {
+        entry: path.resolve(__dirname, entry),
+        output: {
+            path: path.resolve(__dirname, 'dist'),
+            filename,
+            // Flarum 2: PHP wraps each extension script with a `module` object and
+            // stores `module.exports` into `flarum.extensions['extension-id']`.
+            library: 'module.exports',
+            libraryTarget: 'assign',
+        },
+        externals: [
+            {
+                '@flarum/core/forum': 'flarum.core',
+                '@flarum/core/admin': 'flarum.core',
+                jquery: 'jQuery',
+            },
+            // Old-style flarum/* imports → compat layer
+            function ({ request }, callback) {
+                const match = /^flarum\/(.+)$/.exec(request);
+                if (match) {
+                    return callback(null, `root flarum.core.compat['${match[1]}']`);
+                }
+                callback();
+            },
+        ],
+        module: {
+            rules: [{
+                test: /\.js$/,
+                exclude: /node_modules/,
+                use: {
+                    loader: 'babel-loader',
+                    options: { presets: ['@babel/preset-env'] },
+                },
+            }],
+        },
+        mode: 'production',
+        devtool: 'source-map',
+    };
 }
 
-const sharedConfig = (entry, filename) => ({
-    entry: path.resolve(__dirname, entry),
-    output: {
-        path: path.resolve(__dirname, 'dist'),
-        filename,
-        libraryTarget: 'amd',
-    },
-    externals: [
-        flarumExternals,
-        { mithril: { amd: 'mithril', root: 'm' } },
-    ],
-    module: {
-        rules: [{
-            test: /\.js$/,
-            exclude: /node_modules/,
-            use: {
-                loader: 'babel-loader',
-                options: { presets: ['@babel/preset-env'] },
-            },
-        }],
-    },
-    mode: 'production',
-});
-
 module.exports = [
-    sharedConfig('src/forum/index.js', 'forum.js'),
-    sharedConfig('src/admin/index.js', 'admin.js'),
+    makeConfig('src/forum/index.js', 'forum.js'),
+    makeConfig('src/admin/index.js', 'admin.js'),
 ];
