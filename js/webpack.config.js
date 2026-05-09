@@ -1,79 +1,41 @@
 const path = require('path');
 
-// All flarum/* imports are provided at runtime by Flarum core.
-// We must mark them as externals so webpack doesn't bundle them.
+// Flarum exposes its modules via AMD as nested arrays.
+// e.g. import Component from 'flarum/common/Component'
+//   → external: ['flarum', 'common', 'Component']
 function flarumExternals({ request }, callback) {
     if (/^flarum\//.test(request)) {
-        // Convert e.g. "flarum/common/Component" → ["flarum", "common", "Component"]
         const parts = request.split('/');
-        return callback(null, parts);
+        return callback(null, parts, 'amd');
     }
     callback();
 }
 
+const sharedConfig = (entry, filename) => ({
+    entry: path.resolve(__dirname, entry),
+    output: {
+        path: path.resolve(__dirname, 'dist'),
+        filename,
+        libraryTarget: 'amd',
+    },
+    externals: [
+        flarumExternals,
+        { mithril: { amd: 'mithril', root: 'm' } },
+    ],
+    module: {
+        rules: [{
+            test: /\.js$/,
+            exclude: /node_modules/,
+            use: {
+                loader: 'babel-loader',
+                options: { presets: ['@babel/preset-env'] },
+            },
+        }],
+    },
+    mode: 'production',
+});
+
 module.exports = [
-    // Forum bundle
-    {
-        entry: path.resolve(__dirname, 'src/forum/index.js'),
-        output: {
-            path: path.resolve(__dirname, 'dist'),
-            filename: 'forum.js',
-            library: { type: 'amd' },
-        },
-        externalsType: 'root',
-        externals: [
-            flarumExternals,
-            { mithril: 'm' },
-        ],
-        module: {
-            rules: [
-                {
-                    test: /\.js$/,
-                    exclude: /node_modules/,
-                    use: {
-                        loader: 'babel-loader',
-                        options: {
-                            presets: ['@babel/preset-env'],
-                        },
-                    },
-                },
-            ],
-        },
-        resolve: {
-            extensions: ['.js'],
-        },
-        mode: 'production',
-    },
-    // Admin bundle
-    {
-        entry: path.resolve(__dirname, 'src/admin/index.js'),
-        output: {
-            path: path.resolve(__dirname, 'dist'),
-            filename: 'admin.js',
-            library: { type: 'amd' },
-        },
-        externalsType: 'root',
-        externals: [
-            flarumExternals,
-            { mithril: 'm' },
-        ],
-        module: {
-            rules: [
-                {
-                    test: /\.js$/,
-                    exclude: /node_modules/,
-                    use: {
-                        loader: 'babel-loader',
-                        options: {
-                            presets: ['@babel/preset-env'],
-                        },
-                    },
-                },
-            ],
-        },
-        resolve: {
-            extensions: ['.js'],
-        },
-        mode: 'production',
-    },
+    sharedConfig('src/forum/index.js', 'forum.js'),
+    sharedConfig('src/admin/index.js', 'admin.js'),
 ];
