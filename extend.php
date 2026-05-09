@@ -1,7 +1,6 @@
 <?php
 
 use Flarum\Extend;
-use Ernestdefoe\EspnCfbTicker\Listener\AddTickerData;
 
 return [
     // Register frontend assets
