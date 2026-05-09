@@ -4,8 +4,8 @@
     "version": "2.0.0",
     "description": "FBS college football score ticker for Flarum 2",
     "scripts": {
-        "dev": "flarum-webpack --watch",
-        "build": "flarum-webpack"
+        "dev": "webpack --watch",
+        "build": "webpack"
     },
     "devDependencies": {
         "flarum-webpack-config": "^3.0.0",
