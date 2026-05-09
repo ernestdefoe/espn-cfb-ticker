@@ -1,3 +1,5 @@
+export { default as extend } from './extend';
+
 import app from 'flarum/forum/app';
 import HeaderPrimary from 'flarum/forum/components/HeaderPrimary';
 import CfbTicker from './components/CfbTicker';
