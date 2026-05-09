@@ -1,5 +1,5 @@
 {
-    "name": "yourvendor/espn-cfb-ticker",
+    "name": "ernestdefoe/espn-cfb-ticker",
     "description": "ESPN College Football Sports Ticker for Flarum 2",
     "keywords": ["flarum", "extension", "college football", "espn", "sports ticker"],
     "type": "flarum-extension",
@@ -9,7 +9,7 @@
     },
     "autoload": {
         "psr-4": {
-            "YourVendor\\EspnCfbTicker\\": "src/"
+            "ernestdefoe\\EspnCfbTicker\\": "src/"
         }
     },
     "extra": {
