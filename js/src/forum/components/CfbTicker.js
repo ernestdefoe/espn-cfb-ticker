@@ -1,6 +1,4 @@
-import Component from '@flarum/core/common/Component';
-import LoadingIndicator from '@flarum/core/common/components/LoadingIndicator';
-import app from '@flarum/core/forum';
+import app, { Component, LoadingIndicator } from '@flarum/core/forum';
 
 const ESPN_API_URL =
     'https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard?groups=80&limit=50';

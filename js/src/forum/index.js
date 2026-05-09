@@ -1,7 +1,6 @@
 export { default as extend } from './extend';
 
-import app from '@flarum/core/forum';
-import HeaderPrimary from '@flarum/core/forum/components/HeaderPrimary';
+import app, { HeaderPrimary } from '@flarum/core/forum';
 import CfbTicker from './components/CfbTicker';
 
 app.initializers.add('ernestdefoe-espn-cfb-ticker', () => {
