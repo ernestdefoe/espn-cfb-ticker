@@ -1,6 +1,6 @@
 <?php
 
-namespace YourVendor\EspnCfbTicker;
+namespace ernestdefoe\EspnCfbTicker;
 
 use Flarum\Extend;
 
