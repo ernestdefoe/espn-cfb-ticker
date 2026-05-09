@@ -1,5 +1,5 @@
 {
-    "name": "@yourvendor/espn-cfb-ticker",
+    "name": "@ernestdefoe/espn-cfb-ticker",
     "version": "1.0.0",
     "description": "ESPN College Football Ticker for Flarum 2",
     "private": true,
