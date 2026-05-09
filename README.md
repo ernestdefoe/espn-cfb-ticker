@@ -42,7 +42,7 @@ php flarum cache:clear
 2. Run `composer install` inside the extension directory
 3. Build the JS assets:
    ```bash
-   cd extensions/yourvendor-espn-cfb-ticker
+   cd extensions/ernestdefoe-espn-cfb-ticker
    npm install
    npm run build
    ```
