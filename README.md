@@ -32,13 +32,13 @@ A live-scrolling ESPN college football score ticker for [Flarum 2](https://flaru
 ### Via Composer (recommended)
 
 ```bash
-composer require yourvendor/espn-cfb-ticker
+composer require ernestdefoe/espn-cfb-ticker
 php flarum cache:clear
 ```
 
 ### Manual Installation
 
-1. Clone or download this repository into `extensions/yourvendor-espn-cfb-ticker/`
+1. Clone or download this repository into `extensions/ernestdefoe-espn-cfb-ticker/`
 2. Run `composer install` inside the extension directory
 3. Build the JS assets:
    ```bash
