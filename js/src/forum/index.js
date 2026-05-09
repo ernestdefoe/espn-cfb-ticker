@@ -1,31 +1,18 @@
 import app from 'flarum/forum/app';
 import { extend } from 'flarum/common/extend';
-import IndexPage from 'flarum/forum/components/IndexPage';
+import HeaderPrimary from 'flarum/forum/components/HeaderPrimary';
 import CfbTicker from './components/CfbTicker';
 
 app.initializers.add('ernestdefoe-espn-cfb-ticker', () => {
-    // Inject the ticker into every forum page by extending the IndexPage header
-    // and also mounting globally via the forum body.
-    extend(app, 'mount', function () {
+    // Extend HeaderPrimary.view so the ticker appears on every forum page.
+    // This is the safe Flarum 2 pattern — never call m.mount() or extend app itself.
+    extend(HeaderPrimary.prototype, 'view', function (vnode) {
         const enabled = app.forum.attribute('ernestdefoe-espn-cfb-ticker.enabled');
-        if (!enabled && enabled !== undefined) return;
+        // Default to enabled when the setting hasn't been saved yet
+        if (enabled === false) return;
 
-        const position = app.forum.attribute('ernestdefoe-espn-cfb-ticker.position') || 'top';
-        const container = document.createElement('div');
-        container.id = 'cfb-ticker-mount';
-        container.setAttribute('data-position', position);
-
-        if (position === 'bottom') {
-            document.body.appendChild(container);
-        } else {
-            const forumBody = document.getElementById('app');
-            if (forumBody) {
-                forumBody.insertBefore(container, forumBody.firstChild);
-            } else {
-                document.body.insertBefore(container, document.body.firstChild);
-            }
+        if (vnode && Array.isArray(vnode.children)) {
+            vnode.children.unshift(m(CfbTicker));
         }
-
-        m.mount(container, CfbTicker);
     });
 });

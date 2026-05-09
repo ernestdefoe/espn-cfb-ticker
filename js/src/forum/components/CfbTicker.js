@@ -4,8 +4,6 @@ import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
 const ESPN_API_URL =
     'https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard?groups=80&limit=50';
 
-// FBS group ID = 80 (NCAA Division I FBS)
-
 function statusLabel(event) {
     const state = event.status?.type?.state;
     const detail = event.status?.type?.shortDetail || '';
@@ -32,16 +30,16 @@ function formatGame(event) {
         live: isLive(event),
         status: statusLabel(event),
         away: {
-            abbr: away.team?.abbreviation || away.team?.displayName,
-            logo: away.team?.logo,
+            abbr: away.team?.abbreviation || away.team?.displayName || '?',
+            logo: away.team?.logo || null,
             score: away.score,
-            rank: away.curatedRank?.current,
+            rank: away.curatedRank?.current || null,
         },
         home: {
-            abbr: home.team?.abbreviation || home.team?.displayName,
-            logo: home.team?.logo,
+            abbr: home.team?.abbreviation || home.team?.displayName || '?',
+            logo: home.team?.logo || null,
             score: home.score,
-            rank: home.curatedRank?.current,
+            rank: home.curatedRank?.current || null,
         },
     };
 }
@@ -53,18 +51,17 @@ export default class CfbTicker extends Component {
         this.loading = true;
         this.error = null;
         this._interval = null;
-
         this.refresh = this.refresh.bind(this);
     }
 
     oncreate(vnode) {
         super.oncreate(vnode);
         this.refresh();
-        const interval = parseInt(
+        const secs = parseInt(
             app.forum.attribute('ernestdefoe-espn-cfb-ticker.refreshInterval') || 60,
             10
-        ) * 1000;
-        this._interval = setInterval(this.refresh, interval);
+        );
+        this._interval = setInterval(this.refresh, Math.max(15, secs) * 1000);
     }
 
     onremove(vnode) {
@@ -75,10 +72,9 @@ export default class CfbTicker extends Component {
     async refresh() {
         try {
             const res = await fetch(ESPN_API_URL);
-            if (!res.ok) throw new Error(`ESPN API error: ${res.status}`);
+            if (!res.ok) throw new Error('ESPN API ' + res.status);
             const data = await res.json();
-            const events = data.events || [];
-            this.games = events.map(formatGame).filter(Boolean);
+            this.games = (data.events || []).map(formatGame).filter(Boolean);
             this.error = null;
         } catch (e) {
             console.error('[CfbTicker]', e);
@@ -96,72 +92,56 @@ export default class CfbTicker extends Component {
         );
         const position = app.forum.attribute('ernestdefoe-espn-cfb-ticker.position') || 'top';
 
-        return (
-            <div className={`CfbTicker CfbTicker--${position}`}>
-                <div className="CfbTicker-label">
-                    <i className="fas fa-football-ball" />
-                    <span>CFB</span>
-                </div>
+        let trackContent;
+        if (this.loading) {
+            trackContent = m(LoadingIndicator, { size: 'small' });
+        } else if (this.error) {
+            trackContent = m('span.CfbTicker-error', this.error);
+        } else if (this.games.length === 0) {
+            trackContent = m('span.CfbTicker-empty', 'No FBS games scheduled today.');
+        } else {
+            const duration = Math.max(10, this.games.length * speed);
+            // Duplicate games for seamless CSS loop
+            const allGames = [...this.games, ...this.games];
+            trackContent = m(
+                'div.CfbTicker-track',
+                { style: 'animation-duration:' + duration + 's' },
+                allGames.map((g, i) => this.gameChip(g, i))
+            );
+        }
 
-                <div className="CfbTicker-track-wrapper">
-                    {this.loading ? (
-                        <LoadingIndicator size="small" />
-                    ) : this.error ? (
-                        <span className="CfbTicker-error">{this.error}</span>
-                    ) : this.games.length === 0 ? (
-                        <span className="CfbTicker-empty">No FBS games scheduled today.</span>
-                    ) : (
-                        <div
-                            className="CfbTicker-track"
-                            style={`animation-duration: ${Math.max(10, this.games.length * speed)}s`}
-                        >
-                            {/* Duplicate for seamless loop */}
-                            {[...this.games, ...this.games].map((g, i) => (
-                                <span key={`${g.id}-${i}`} className={`CfbTicker-game${g.live ? ' CfbTicker-game--live' : ''}`}>
-                                    {g.live && <span className="CfbTicker-live-dot" title="Live" />}
+        return m('div.CfbTicker.CfbTicker--' + position, [
+            m('div.CfbTicker-label', [
+                m('i.fas.fa-football-ball'),
+                m('span', 'CFB'),
+            ]),
+            m('div.CfbTicker-track-wrapper', trackContent),
+        ]);
+    }
 
-                                    {/* Away team */}
-                                    {g.away.rank && g.away.rank <= 25 && (
-                                        <sup className="CfbTicker-rank">#{g.away.rank}</sup>
-                                    )}
-                                    {g.away.logo && (
-                                        <img
-                                            className="CfbTicker-logo"
-                                            src={g.away.logo}
-                                            alt={g.away.abbr}
-                                        />
-                                    )}
-                                    <span className="CfbTicker-abbr">{g.away.abbr}</span>
-                                    {g.away.score !== undefined && (
-                                        <span className="CfbTicker-score">{g.away.score}</span>
-                                    )}
+    gameChip(g, i) {
+        const cls = 'span.CfbTicker-game' + (g.live ? '.CfbTicker-game--live' : '');
+        const children = [];
 
-                                    <span className="CfbTicker-sep">@</span>
+        if (g.live) children.push(m('span.CfbTicker-live-dot', { title: 'Live' }));
 
-                                    {/* Home team */}
-                                    {g.home.rank && g.home.rank <= 25 && (
-                                        <sup className="CfbTicker-rank">#{g.home.rank}</sup>
-                                    )}
-                                    {g.home.logo && (
-                                        <img
-                                            className="CfbTicker-logo"
-                                            src={g.home.logo}
-                                            alt={g.home.abbr}
-                                        />
-                                    )}
-                                    <span className="CfbTicker-abbr">{g.home.abbr}</span>
-                                    {g.home.score !== undefined && (
-                                        <span className="CfbTicker-score">{g.home.score}</span>
-                                    )}
+        // Away
+        if (g.away.rank && g.away.rank <= 25) children.push(m('sup.CfbTicker-rank', '#' + g.away.rank));
+        if (g.away.logo) children.push(m('img.CfbTicker-logo', { src: g.away.logo, alt: g.away.abbr }));
+        children.push(m('span.CfbTicker-abbr', g.away.abbr));
+        if (g.away.score !== undefined) children.push(m('span.CfbTicker-score', g.away.score));
 
-                                    <span className="CfbTicker-status">{g.status}</span>
-                                    <span className="CfbTicker-divider">|</span>
-                                </span>
-                            ))}
-                        </div>
-                    )}
-                </div>
-            </div>
-        );
+        children.push(m('span.CfbTicker-sep', '@'));
+
+        // Home
+        if (g.home.rank && g.home.rank <= 25) children.push(m('sup.CfbTicker-rank', '#' + g.home.rank));
+        if (g.home.logo) children.push(m('img.CfbTicker-logo', { src: g.home.logo, alt: g.home.abbr }));
+        children.push(m('span.CfbTicker-abbr', g.home.abbr));
+        if (g.home.score !== undefined) children.push(m('span.CfbTicker-score', g.home.score));
+
+        children.push(m('span.CfbTicker-status', g.status));
+        children.push(m('span.CfbTicker-divider', '|'));
+
+        return m(cls, { key: g.id + '-' + i }, children);
     }
 }
