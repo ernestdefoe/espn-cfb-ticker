@@ -1,5 +1,0 @@
-vendor/
-js/node_modules/
-js/dist/
-js/tsconfig.tsbuildinfo
-.phpunit.result.cache
