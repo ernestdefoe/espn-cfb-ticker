@@ -1,6 +1,6 @@
 export { default as extend } from './extend';
 
-import app from 'flarum/admin/app';
+import app from '@flarum/core/admin';
 
 app.initializers.add('ernestdefoe-espn-cfb-ticker', () => {
     app.extensionData

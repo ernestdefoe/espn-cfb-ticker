@@ -1,5 +1,6 @@
-import Component from 'flarum/common/Component';
-import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
+import Component from '@flarum/core/common/Component';
+import LoadingIndicator from '@flarum/core/common/components/LoadingIndicator';
+import app from '@flarum/core/forum';
 
 const ESPN_API_URL =
     'https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard?groups=80&limit=50';
@@ -101,7 +102,6 @@ export default class CfbTicker extends Component {
             trackContent = m('span.CfbTicker-empty', 'No FBS games scheduled today.');
         } else {
             const duration = Math.max(10, this.games.length * speed);
-            // Duplicate games for seamless CSS loop
             const allGames = [...this.games, ...this.games];
             trackContent = m(
                 'div.CfbTicker-track',
@@ -112,7 +112,7 @@ export default class CfbTicker extends Component {
 
         return m('div.CfbTicker.CfbTicker--' + position, [
             m('div.CfbTicker-label', [
-                m('i.fas.fa-football-ball'),
+                m('i.fa-solid.fa-football'),
                 m('span', 'CFB'),
             ]),
             m('div.CfbTicker-track-wrapper', trackContent),
@@ -125,7 +125,6 @@ export default class CfbTicker extends Component {
 
         if (g.live) children.push(m('span.CfbTicker-live-dot', { title: 'Live' }));
 
-        // Away
         if (g.away.rank && g.away.rank <= 25) children.push(m('sup.CfbTicker-rank', '#' + g.away.rank));
         if (g.away.logo) children.push(m('img.CfbTicker-logo', { src: g.away.logo, alt: g.away.abbr }));
         children.push(m('span.CfbTicker-abbr', g.away.abbr));
@@ -133,7 +132,6 @@ export default class CfbTicker extends Component {
 
         children.push(m('span.CfbTicker-sep', '@'));
 
-        // Home
         if (g.home.rank && g.home.rank <= 25) children.push(m('sup.CfbTicker-rank', '#' + g.home.rank));
         if (g.home.logo) children.push(m('img.CfbTicker-logo', { src: g.home.logo, alt: g.home.abbr }));
         children.push(m('span.CfbTicker-abbr', g.home.abbr));

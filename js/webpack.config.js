@@ -6,8 +6,8 @@ function makeConfig(entry, filename) {
         output: {
             path: path.resolve(__dirname, 'dist'),
             filename,
-            // Flarum 2: PHP wraps each extension script with a `module` object and
-            // stores `module.exports` into `flarum.extensions['extension-id']`.
+            // Flarum 2: PHP wraps each extension script in a module object and
+            // captures module.exports into flarum.extensions['extension-id'].
             library: 'module.exports',
             libraryTarget: 'assign',
         },
@@ -17,14 +17,8 @@ function makeConfig(entry, filename) {
                 '@flarum/core/admin': 'flarum.core',
                 jquery: 'jQuery',
             },
-            // Old-style flarum/* imports → compat layer
-            function ({ request }, callback) {
-                const match = /^flarum\/(.+)$/.exec(request);
-                if (match) {
-                    return callback(null, `root flarum.core.compat['${match[1]}']`);
-                }
-                callback();
-            },
+            // NOTE: flarum.core.compat does not exist in Flarum 2.
+            // All imports must use @flarum/core/* — no flarum/* fallback.
         ],
         module: {
             rules: [{
