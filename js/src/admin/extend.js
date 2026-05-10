@@ -34,5 +34,11 @@ export default [
       placeholder: '40',
       label: 'Scroll Speed',
       help: 'Ticker scroll speed in pixels per second.',
+    }))
+    .setting(() => ({
+      setting: 'ernestdefoe-espn-cfb-ticker.avocado_compat',
+      type: 'boolean',
+      label: 'Avocado Theme Compatibility',
+      help: 'Enable if using the Avocado theme. Ensures the ticker is positioned correctly below the fixed header.',
     })),
 ];

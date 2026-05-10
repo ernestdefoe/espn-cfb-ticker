@@ -10,6 +10,21 @@
 @cfb-ticker-font-size: 13px;
 @cfb-ticker-logo-size: 18px;
 
+// ── Ticker root (fixed to viewport, mounted directly on body) ──
+#cfb-ticker-root {
+    position: fixed;
+    left: 0;
+    right: 0;
+    z-index: 59; // below Avocado header (z-index: 60), above page content
+
+    &[data-position="top"]    { top: 52px; }
+    &[data-position="bottom"] { bottom: 0; }
+}
+
+// Content padding so the ticker never hides page content
+.has-cfb-ticker-top    .App-content { padding-top: @cfb-ticker-height; }
+.has-cfb-ticker-bottom .App         { padding-bottom: @cfb-ticker-height; }
+
 // ── Wrapper ──────────────────────────────────────────────
 .CfbTicker {
     display: flex;
@@ -21,23 +36,10 @@
     font-size: @cfb-ticker-font-size;
     font-family: 'Roboto Condensed', 'Arial Narrow', Arial, sans-serif;
     overflow: hidden;
-    z-index: 9999;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
-    position: relative;
 
-    &--top {
-        position: sticky;
-        top: 0;
-        border-bottom: 2px solid @cfb-ticker-accent;
-    }
-
-    &--bottom {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        border-top: 2px solid @cfb-ticker-accent;
-    }
+    &--top    { border-bottom: 2px solid @cfb-ticker-accent; }
+    &--bottom { border-top:    2px solid @cfb-ticker-accent; }
 }
 
 // ── Label badge ──────────────────────────────────────────
