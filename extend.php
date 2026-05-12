@@ -11,6 +11,8 @@ return [
         ->js(__DIR__ . '/js/dist/admin.js')
         ->css(__DIR__ . '/less/admin.less'),
 
+    new Extend\Locales(__DIR__ . '/locale'),
+
     (new Extend\Settings())
         ->default('ernestdefoe-espn-cfb-ticker.enabled', true)
         ->default('ernestdefoe-espn-cfb-ticker.position', 'top')
