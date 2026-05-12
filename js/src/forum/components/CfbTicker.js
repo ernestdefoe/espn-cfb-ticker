@@ -8,9 +8,9 @@ const ESPN_API_URL =
 function statusLabel(event) {
     const state = event.status?.type?.state;
     const detail = event.status?.type?.shortDetail || '';
-    if (state === 'pre') return detail || 'Upcoming';
-    if (state === 'in') return detail || 'LIVE';
-    if (state === 'post') return 'Final';
+    if (state === 'pre') return detail || app.translator.trans('ernestdefoe-espn-cfb-ticker.forum.status.upcoming');
+    if (state === 'in') return detail || app.translator.trans('ernestdefoe-espn-cfb-ticker.forum.status.live');
+    if (state === 'post') return app.translator.trans('ernestdefoe-espn-cfb-ticker.forum.status.final');
     return detail;
 }
 
@@ -79,7 +79,7 @@ export default class CfbTicker extends Component {
             this.error = null;
         } catch (e) {
             console.error('[CfbTicker]', e);
-            this.error = 'Could not load scores.';
+            this.error = app.translator.trans('ernestdefoe-espn-cfb-ticker.forum.ticker.load_error');
         } finally {
             this.loading = false;
             m.redraw();
@@ -99,7 +99,7 @@ export default class CfbTicker extends Component {
         } else if (this.error) {
             trackContent = m('span.CfbTicker-error', this.error);
         } else if (this.games.length === 0) {
-            trackContent = m('span.CfbTicker-empty', 'No FBS games scheduled today.');
+            trackContent = m('span.CfbTicker-empty', app.translator.trans('ernestdefoe-espn-cfb-ticker.forum.ticker.no_games'));
         } else {
             const duration = Math.max(10, this.games.length * speed);
             const allGames = [...this.games, ...this.games];
@@ -113,7 +113,7 @@ export default class CfbTicker extends Component {
         return m('div.CfbTicker.CfbTicker--' + position, [
             m('div.CfbTicker-label', [
                 m('i.fa-solid.fa-football'),
-                m('span', 'CFB'),
+                m('span', app.translator.trans('ernestdefoe-espn-cfb-ticker.forum.ticker.label')),
             ]),
             m('div.CfbTicker-track-wrapper', trackContent),
         ]);
@@ -123,7 +123,7 @@ export default class CfbTicker extends Component {
         const cls = 'span.CfbTicker-game' + (g.live ? '.CfbTicker-game--live' : '');
         const children = [];
 
-        if (g.live) children.push(m('span.CfbTicker-live-dot', { title: 'Live' }));
+        if (g.live) children.push(m('span.CfbTicker-live-dot', { title: app.translator.trans('ernestdefoe-espn-cfb-ticker.forum.status.live') }));
 
         if (g.away.rank && g.away.rank <= 25) children.push(m('sup.CfbTicker-rank', '#' + g.away.rank));
         if (g.away.logo) children.push(m('img.CfbTicker-logo', { src: g.away.logo, alt: g.away.abbr }));

@@ -13,3 +13,13 @@ ernestdefoe-espn-cfb-ticker:
       speed_help: "Ticker scroll speed — lower values scroll faster."
       avocado_label: Avocado Theme Compatibility
       avocado_help: "Enable if using the Avocado theme. Ensures the ticker is positioned correctly below the fixed header."
+
+  forum:
+    ticker:
+      label: CFB
+      load_error: Could not load scores.
+      no_games: No FBS games scheduled today.
+    status:
+      upcoming: Upcoming
+      live: LIVE
+      final: Final
