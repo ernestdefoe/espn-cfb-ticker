@@ -1,5 +1,11 @@
 # ESPN CFB Ticker — Flarum 2 Extension
 
+[![Floxum](https://floxum.com/extension/ernestdefoe/espn-cfb-ticker/badge/name)](https://floxum.com/extension/ernestdefoe/espn-cfb-ticker)
+[![Version](https://floxum.com/extension/ernestdefoe/espn-cfb-ticker/badge/highest-version)](https://floxum.com/extension/ernestdefoe/espn-cfb-ticker)
+[![Downloads](https://floxum.com/extension/ernestdefoe/espn-cfb-ticker/badge/downloads)](https://floxum.com/extension/ernestdefoe/espn-cfb-ticker)
+[![Review](https://floxum.com/extension/ernestdefoe/espn-cfb-ticker/badge/review)](https://floxum.com/extension/ernestdefoe/espn-cfb-ticker)
+[![License](https://floxum.com/extension/ernestdefoe/espn-cfb-ticker/badge/license)](https://floxum.com/extension/ernestdefoe/espn-cfb-ticker)
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Flarum](https://img.shields.io/badge/Flarum-2.x-blue)](https://flarum.org)
 
