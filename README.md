@@ -83,6 +83,13 @@ The ESPN public scoreboard API (`site.api.espn.com`) is unofficial and undocumen
 
 ---
 
+## Support
+
+Questions, bug reports, and feature requests:
+
+- **Support forum:** https://ernestdefoe.online
+- **Issues:** https://github.com/ernestdefoe/espn-cfb-ticker/issues
+
 ## License
 
 [MIT](LICENSE) © 2026 ernestdefoe
