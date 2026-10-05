@@ -2,6 +2,11 @@ import app from 'flarum/forum/app';
 import Component from 'flarum/common/Component';
 import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
 import type Mithril from 'mithril';
+import crestUrl from '../crest';
+
+// @cfb-ticker-logo-size in less/forum.less. Not lazy: the ticker is a moving
+// marquee, and the crests in it are the content.
+const LOGO_PX = 18;
 
 const ESPN_API_URL =
     'https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard?groups=80&limit=50';
@@ -173,14 +178,14 @@ export default class CfbTicker extends Component {
         if (g.live) children.push(m('span.CfbTicker-live-dot', { title: app.translator.trans('ernestdefoe-espn-cfb-ticker.forum.status.live') }));
 
         if (g.away.rank && g.away.rank <= 25) children.push(m('sup.CfbTicker-rank', '#' + g.away.rank));
-        if (g.away.logo) children.push(m('img.CfbTicker-logo', { src: g.away.logo, alt: g.away.abbr }));
+        if (g.away.logo) children.push(m('img.CfbTicker-logo', { src: crestUrl(g.away.logo, LOGO_PX), alt: g.away.abbr, decoding: 'async' }));
         children.push(m('span.CfbTicker-abbr', g.away.abbr));
         if (g.away.score !== undefined) children.push(m('span.CfbTicker-score', g.away.score));
 
         children.push(m('span.CfbTicker-sep', '@'));
 
         if (g.home.rank && g.home.rank <= 25) children.push(m('sup.CfbTicker-rank', '#' + g.home.rank));
-        if (g.home.logo) children.push(m('img.CfbTicker-logo', { src: g.home.logo, alt: g.home.abbr }));
+        if (g.home.logo) children.push(m('img.CfbTicker-logo', { src: crestUrl(g.home.logo, LOGO_PX), alt: g.home.abbr, decoding: 'async' }));
         children.push(m('span.CfbTicker-abbr', g.home.abbr));
         if (g.home.score !== undefined) children.push(m('span.CfbTicker-score', g.home.score));
 
