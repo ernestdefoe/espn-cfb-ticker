@@ -68,6 +68,8 @@ export default class CfbTicker extends Component {
     loading: boolean = true;
     error: string | null = null;
     _interval: ReturnType<typeof setInterval> | null = null;
+    _stale: boolean = false;
+    _onVisibility: (() => void) | null = null;
 
     oninit(vnode: Mithril.Vnode<Record<string, unknown>, this>) {
         super.oninit(vnode);
@@ -85,12 +87,29 @@ export default class CfbTicker extends Component {
             app.forum.attribute('ernestdefoe-espn-cfb-ticker.refreshInterval') || '60',
             10
         );
-        this._interval = setInterval(this.refresh, Math.max(15, secs) * 1000);
+        // A tab nobody is looking at does not poll: the tick only marks the
+        // scores stale, and the tab fetches once when it is shown again.
+        this._interval = setInterval(() => {
+            if (document.hidden) {
+                this._stale = true;
+                return;
+            }
+            this.refresh();
+        }, Math.max(15, secs) * 1000);
+
+        this._onVisibility = () => {
+            if (!document.hidden && this._stale) {
+                this._stale = false;
+                this.refresh();
+            }
+        };
+        document.addEventListener('visibilitychange', this._onVisibility);
     }
 
     onremove(vnode: Mithril.Vnode<Record<string, unknown>, this>) {
         super.onremove(vnode);
         if (this._interval) clearInterval(this._interval);
+        if (this._onVisibility) document.removeEventListener('visibilitychange', this._onVisibility);
     }
 
     async refresh() {
