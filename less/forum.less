@@ -17,7 +17,9 @@
     right: 0;
     z-index: 59; // below Avocado header (z-index: 60), above page content
 
-    &[data-position="top"]    { top: 52px; }
+    // Set from the header's real height (see forum/index.ts): a theme's header
+    // can be taller than core's, and the ticker would sit hidden behind it.
+    &[data-position="top"]    { top: var(--cfb-ticker-top, 52px); }
     &[data-position="bottom"] { bottom: 0; }
 }
 

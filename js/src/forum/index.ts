@@ -25,5 +25,10 @@ app.initializers.add('ernestdefoe-espn-cfb-ticker', () => {
     document.body.classList.add('has-cfb-ticker-' + position);
 
     m.mount(root, CfbTicker);
+
+    const header = document.querySelector<HTMLElement>('.App-header');
+    if (position === 'top' && header && 'ResizeObserver' in window) {
+      new ResizeObserver(() => root.style.setProperty('--cfb-ticker-top', header.offsetHeight + 'px')).observe(header);
+    }
   });
 });
