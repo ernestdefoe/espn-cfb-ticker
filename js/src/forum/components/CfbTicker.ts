@@ -8,8 +8,6 @@ import crestUrl from '../crest';
 // marquee, and the crests in it are the content.
 const LOGO_PX = 18;
 
-const ESPN_API_URL = 'https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard?groups=80&limit=50';
-
 interface TickerTeam {
   abbr: string;
   logo: string | null;
@@ -117,13 +115,14 @@ export default class CfbTicker extends Component {
   }
 
   async refresh() {
-    // Abort the ESPN request if it hangs, so a slow/stalled CDN never leaves
-    // the ticker stuck "loading" forever (there is no native fetch timeout).
+    // The forum fetches ESPN for us (src/Scoreboard.php): ESPN sometimes
+    // answers browsers without CORS headers. Abort if the forum hangs, so the
+    // ticker is never stuck "loading" (there is no native fetch timeout).
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 8000);
     try {
-      const res = await fetch(ESPN_API_URL, { signal: controller.signal });
-      if (!res.ok) throw new Error('ESPN API ' + res.status);
+      const res = await fetch(app.forum.attribute('apiUrl') + '/espn-cfb-ticker/scoreboard', { signal: controller.signal });
+      if (!res.ok) throw new Error('Scoreboard ' + res.status);
       const data = await res.json();
       this.games = (data.events || []).map(formatGame).filter(Boolean) as TickerGame[];
       this.error = null;

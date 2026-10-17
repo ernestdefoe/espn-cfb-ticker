@@ -1,5 +1,6 @@
 <?php
 
+use Ernestdefoe\EspnCfbTicker\Api\ScoreboardController;
 use Flarum\Extend;
 
 return [
@@ -12,6 +13,9 @@ return [
         ->css(__DIR__.'/less/admin.less'),
 
     new Extend\Locales(__DIR__.'/locale'),
+
+    (new Extend\Routes('api'))
+        ->get('/espn-cfb-ticker/scoreboard', 'ernestdefoe-espn-cfb-ticker.scoreboard', ScoreboardController::class),
 
     (new Extend\Settings())
         ->default('ernestdefoe-espn-cfb-ticker.enabled', true)

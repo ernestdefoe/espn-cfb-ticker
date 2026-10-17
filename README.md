@@ -71,7 +71,7 @@ npm run dev     # watch mode
 ## How It Works
 
 1. On page load the extension mounts a Mithril component outside Flarum's main app node.
-2. The component `fetch()`es `https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard?groups=80&limit=50` — the public ESPN API, no key required.
+2. The component fetches `/api/espn-cfb-ticker/scoreboard` from your forum. The forum asks ESPN's public scoreboard (`https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard?groups=80&limit=50`, no key required), keeps the answer in Flarum's cache for 45 seconds so every visitor shares one call, and serves the last good copy if ESPN is down.
 3. Games are rendered in a CSS `@keyframes` scroll animation. The track is duplicated so the loop is seamless.
 4. A `setInterval` re-fetches on the configured interval, causing a Mithril redraw.
 
