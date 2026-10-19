@@ -20,9 +20,7 @@ import CfbTicker from './components/CfbTicker';
  * style work at all.
  */
 function follow(root: HTMLElement) {
-  const bars = ['.App-header', '.App-navigation']
-    .map((s) => document.querySelector<HTMLElement>(s))
-    .filter((el): el is HTMLElement => !!el);
+  const bars = ['.App-header', '.App-navigation'].map((s) => document.querySelector<HTMLElement>(s)).filter((el): el is HTMLElement => !!el);
   const html = document.documentElement;
   let current = '';
   let queued = false;
