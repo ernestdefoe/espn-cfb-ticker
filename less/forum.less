@@ -17,8 +17,8 @@
     right: 0;
     z-index: 59; // below Avocado header (z-index: 60), above page content
 
-    // Set from the header's real height (see forum/index.ts): a theme's header
-    // can be taller than core's, and the ticker would sit hidden behind it.
+    // Set on <html> by forum/index.ts: the lower edge of whatever bar is at
+    // the top of the window right now (0 once a scrolling header has gone).
     &[data-position="top"]    { top: var(--cfb-ticker-top, 52px); }
     &[data-position="bottom"] { bottom: 0; }
 }
@@ -26,6 +26,17 @@
 // Content padding so the ticker never hides page content
 .has-cfb-ticker-top    .App-content { padding-top: @cfb-ticker-height; }
 .has-cfb-ticker-bottom .App         { padding-bottom: @cfb-ticker-height; }
+
+// Core sticks these at the header's height, which is where the ticker is, so
+// they slid underneath it. --cfb-ticker-bottom is the ticker's lower edge,
+// kept current by forum/index.ts. `:where()` keeps core's specificity, so a
+// theme that places them itself still wins.
+@media @tablet-up {
+    :where(.has-cfb-ticker-top) .DiscussionPage-nav,
+    :where(.has-cfb-ticker-top) .sideNav > ul.affix {
+        top: ~'max(var(--header-height), var(--cfb-ticker-bottom, 0px))';
+    }
+}
 
 // ── Wrapper ──────────────────────────────────────────────
 .CfbTicker {
