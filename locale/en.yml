@@ -1,8 +1,21 @@
 ernestdefoe-espn-cfb-ticker:
   admin:
     settings:
-      enabled_label: Enable CFB Scores Ticker
-      enabled_help: Show a live FBS college football scores ticker in the forum header.
+      enabled_label: Enable Scores Ticker
+      enabled_help: Show a live ESPN scores ticker across the top or bottom of the forum.
+      leagues_label: Leagues
+      leagues_help: "Which scoreboards the ticker shows. With more than one, each league's games are tagged with its name. Nothing ticked shows college football."
+      league:
+        college-football: College football (FBS)
+        nfl: NFL
+        mens-college-basketball: "Men's college basketball (Division I)"
+        womens-college-basketball: "Women's college basketball (Division I)"
+        nba: NBA
+        wnba: WNBA
+        mlb: MLB
+        nhl: NHL
+        ufc: UFC (every bout on the next or current card)
+        pfl: PFL (every bout on the next or current card)
       position_label: Ticker Position
       position_help: Where the ticker appears on the page.
       position_top: Top of page
@@ -17,8 +30,21 @@ ernestdefoe-espn-cfb-ticker:
   forum:
     ticker:
       label: CFB
+      label_many: Scores
       load_error: Could not load scores.
       no_games: No FBS games scheduled today.
+      no_games_any: No games scheduled today.
+    leagues:
+      college-football: CFB
+      nfl: NFL
+      mens-college-basketball: NCAAM
+      womens-college-basketball: NCAAW
+      nba: NBA
+      wnba: WNBA
+      mlb: MLB
+      nhl: NHL
+      ufc: UFC
+      pfl: PFL
     status:
       upcoming: Upcoming
       live: LIVE

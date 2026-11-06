@@ -1,4 +1,4 @@
-// ESPN CFB Ticker — Forum Styles
+// ESPN Scores Ticker — Forum Styles
 // ================================
 
 @cfb-ticker-height: 36px;
@@ -232,3 +232,28 @@
     .CfbTicker-logo { display: none; }
     .CfbTicker-label span { display: none; }
 }
+
+// ── League tag (only when several leagues share the bar) ──
+.CfbTicker-league {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    height: 22px;
+    margin: 0 6px 0 10px;
+    padding: 0 8px;
+    border-radius: 3px;
+    background: @cfb-ticker-accent;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    white-space: nowrap;
+    flex-shrink: 0;
+
+    .fa-solid { font-size: 10px; }
+}
+
+// ── Fights: the winner stands out, since a bout has no score ──
+.CfbTicker-abbr--winner { color: #fff; font-weight: 700; }
+.CfbTicker-abbr--loser  { color: rgba(255, 255, 255, 0.5); }

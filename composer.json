@@ -1,6 +1,6 @@
 {
     "name": "ernestdefoe/espn-cfb-ticker",
-    "description": "A FBS college football scores ticker powered by the ESPN API for Flarum 2.",
+    "description": "A live ESPN scores ticker for Flarum 2: college football, NFL, college basketball, NBA, WNBA, MLB, NHL, UFC and PFL.",
     "type": "flarum-extension",
     "license": "MIT",
     "authors": [
@@ -26,7 +26,7 @@
     },
     "extra": {
         "flarum-extension": {
-            "title": "ESPN CFB Ticker",
+            "title": "ESPN Scores Ticker",
             "category": "feature",
             "icon": {
                 "name": "fas fa-football-ball",

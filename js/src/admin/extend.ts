@@ -1,5 +1,6 @@
 import app from 'flarum/admin/app';
 import Extend from 'flarum/common/extenders';
+import LeaguePicker from './components/LeaguePicker';
 
 export default [
   new Extend.Admin()
@@ -9,6 +10,11 @@ export default [
       label: app.translator.trans('ernestdefoe-espn-cfb-ticker.admin.settings.enabled_label'),
       help: app.translator.trans('ernestdefoe-espn-cfb-ticker.admin.settings.enabled_help'),
     }))
+    // A plain function, not an arrow: core calls it with the settings page as
+    // `this`, and the page's own setting() stream is the only one it saves.
+    .customSetting(function (this: any) {
+      return m(LeaguePicker, { value: this.setting('ernestdefoe-espn-cfb-ticker.leagues', 'college-football') });
+    })
     .setting(() => ({
       setting: 'ernestdefoe-espn-cfb-ticker.position',
       type: 'select',

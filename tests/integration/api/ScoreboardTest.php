@@ -79,14 +79,16 @@ class ScoreboardTest extends TestCase
         [$status, $body] = $this->get();
 
         $this->assertSame(200, $status);
-        $event = $body['events'][0];
+        $this->assertSame('college-football', $body['leagues'][0]['id']);
+        $event = $body['leagues'][0]['events'][0];
         $this->assertSame('401', $event['id']);
         $this->assertSame(['state' => 'in', 'shortDetail' => 'Q2 4:12'], $event['status']['type']);
         $this->assertSame(
             ['homeAway' => 'away', 'score' => '14', 'curatedRank' => ['current' => 3], 'team' => ['abbreviation' => 'BAMA', 'displayName' => 'Alabama', 'logo' => 'https://a.espncdn.com/a.png']],
             $event['competitions'][0]['competitors'][0]
         );
-        $this->assertArrayNotHasKey('leagues', $body);
+        $this->assertSame(['leagues'], array_keys($body));
+        $this->assertSame(['id', 'events'], array_keys($body['leagues'][0]), "ESPN's own league blob is dropped");
         $this->assertArrayNotHasKey('name', $event);
     }
 
@@ -99,7 +101,7 @@ class ScoreboardTest extends TestCase
 
         $this->assertSame(200, $status);
         $this->assertCount(1, $this->sent);
-        $this->assertSame(Scoreboard::URL, (string) $this->sent[0]['request']->getUri());
+        $this->assertSame(Scoreboard::url('college-football'), (string) $this->sent[0]['request']->getUri());
     }
 
     #[Test]
@@ -112,7 +114,7 @@ class ScoreboardTest extends TestCase
         [$status, $body] = $this->get();
 
         $this->assertSame(200, $status);
-        $this->assertSame('401', $body['events'][0]['id']);
+        $this->assertSame('401', $body['leagues'][0]['events'][0]['id']);
         $this->assertCount(1, $this->sent, 'Later requests must come from the cache');
     }
 
@@ -126,7 +128,7 @@ class ScoreboardTest extends TestCase
         [$status, $body] = $this->get();
 
         $this->assertSame(200, $status);
-        $this->assertSame('401', $body['events'][0]['id']);
+        $this->assertSame('401', $body['leagues'][0]['events'][0]['id']);
         $this->assertCount(2, $this->sent);
     }
 
@@ -142,5 +144,82 @@ class ScoreboardTest extends TestCase
         $this->assertSame('scores_unavailable', $body['errors'][0]['code']);
         $this->assertSame(502, $again);
         $this->assertCount(1, $this->sent, 'A failure must not be retried on every page view');
+    }
+
+    #[Test]
+    public function the_chosen_leagues_are_fetched_together_in_the_admins_order()
+    {
+        $this->setting('ernestdefoe-espn-cfb-ticker.leagues', 'nhl, nfl,bogus');
+        $this->espn([self::game('1', 'BUF'), self::game('2', 'BOS')]);
+
+        [$status, $body] = $this->get();
+
+        $this->assertSame(200, $status);
+        $this->assertSame(['nfl', 'nhl'], array_column($body['leagues'], 'id'), 'Display order is the server list; unknown ids are dropped');
+        $this->assertCount(2, $this->sent);
+        $urls = array_map(fn ($t) => (string) $t['request']->getUri(), $this->sent);
+        sort($urls);
+        $this->assertSame([Scoreboard::url('nfl'), Scoreboard::url('nhl')], $urls);
+    }
+
+    #[Test]
+    public function one_league_down_does_not_take_the_others_with_it()
+    {
+        $this->setting('ernestdefoe-espn-cfb-ticker.leagues', 'nfl,nba');
+        $this->espn([self::game('1'), new Response(503)]);
+
+        [$status, $body] = $this->get();
+
+        $this->assertSame(200, $status);
+        $this->assertCount(1, $body['leagues']);
+    }
+
+    #[Test]
+    public function a_fight_card_becomes_one_chip_per_bout_main_event_first()
+    {
+        $this->setting('ernestdefoe-espn-cfb-ticker.leagues', 'ufc');
+        $bout = fn (string $id, string $a, string $b, bool $aWon) => [
+            'id' => $id,
+            'status' => ['type' => ['state' => 'post', 'shortDetail' => 'Final']],
+            'competitors' => [
+                ['order' => 2, 'winner' => ! $aWon, 'athlete' => ['shortName' => $b, 'displayName' => $b, 'flag' => ['href' => 'https://a.espncdn.com/i/teamlogos/countries/500/usa.png']]],
+                ['order' => 1, 'winner' => $aWon, 'athlete' => ['shortName' => $a, 'displayName' => $a]],
+            ],
+        ];
+        $this->espn([new Response(200, [], json_encode(['events' => [[
+            'id' => '600',
+            'status' => ['type' => ['state' => 'post']],
+            'competitions' => [$bout('1', 'A. Prelim', 'B. Prelim', true), $bout('2', 'R. Moicano', 'T. Nolan', false)],
+        ]]]))]);
+
+        [$status, $body] = $this->get();
+
+        $this->assertSame(200, $status);
+        $events = $body['leagues'][0]['events'];
+        $this->assertSame(['2', '1'], array_column($events, 'id'));
+        $main = $events[0]['competitions'][0]['competitors'];
+        $this->assertSame(['home', 'away'], array_column($main, 'homeAway'), 'Order 1 is drawn first, as the away side');
+        $this->assertSame([true, false], array_column($main, 'winner'));
+        $this->assertSame('T. Nolan', $main[0]['team']['abbreviation']);
+        $this->assertSame('https://a.espncdn.com/i/teamlogos/countries/500/usa.png', $main[0]['team']['logo']);
+    }
+
+    #[Test]
+    public function an_off_season_league_drops_its_last_final_after_a_week()
+    {
+        $this->setting('ernestdefoe-espn-cfb-ticker.leagues', 'mlb,nfl');
+        $old = json_decode((string) self::game('9')->getBody(), true);
+        $old['events'][0]['date'] = gmdate('Y-m-d\TH:i\Z', time() - 8 * 86400);
+        $old['events'][0]['status']['type']['state'] = 'post';
+        $recent = json_decode((string) self::game('1')->getBody(), true);
+        $recent['events'][0]['date'] = gmdate('Y-m-d\TH:i\Z', time() - 3 * 86400);
+        $recent['events'][0]['status']['type']['state'] = 'post';
+        $this->espn([new Response(200, [], json_encode($recent)), new Response(200, [], json_encode($old))]);
+
+        [, $body] = $this->get();
+
+        $byLeague = array_column($body['leagues'], 'events', 'id');
+        $this->assertSame(['1'], array_column($byLeague['nfl'], 'id'), "Last weekend's finals stay");
+        $this->assertSame([], $byLeague['mlb']);
     }
 }

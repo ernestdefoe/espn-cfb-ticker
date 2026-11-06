@@ -33,6 +33,7 @@ class ForumSettingsTest extends TestCase
         $this->assertSame(60, $forum['ernestdefoe-espn-cfb-ticker.refreshInterval']);
         $this->assertSame(40, $forum['ernestdefoe-espn-cfb-ticker.scrollSpeed']);
         $this->assertFalse($forum['ernestdefoe-espn-cfb-ticker.avocado_compat']);
+        $this->assertSame(['college-football'], $forum['ernestdefoe-espn-cfb-ticker.leagues'], 'An update must not change what a forum shows');
     }
 
     #[Test]
@@ -51,5 +52,21 @@ class ForumSettingsTest extends TestCase
         $this->assertSame(120, $forum['ernestdefoe-espn-cfb-ticker.refreshInterval']);
         $this->assertSame(25, $forum['ernestdefoe-espn-cfb-ticker.scrollSpeed']);
         $this->assertTrue($forum['ernestdefoe-espn-cfb-ticker.avocado_compat']);
+    }
+
+    #[Test]
+    public function the_leagues_arrive_as_known_ids_in_display_order()
+    {
+        $this->setting('ernestdefoe-espn-cfb-ticker.leagues', 'ufc,nba,<script>');
+
+        $this->assertSame(['nba', 'ufc'], $this->forum()['ernestdefoe-espn-cfb-ticker.leagues']);
+    }
+
+    #[Test]
+    public function nothing_ticked_falls_back_to_college_football()
+    {
+        $this->setting('ernestdefoe-espn-cfb-ticker.leagues', '');
+
+        $this->assertSame(['college-football'], $this->forum()['ernestdefoe-espn-cfb-ticker.leagues']);
     }
 }

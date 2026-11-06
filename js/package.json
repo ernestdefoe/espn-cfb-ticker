@@ -2,7 +2,7 @@
     "private": true,
     "name": "@ernestdefoe/espn-cfb-ticker",
     "version": "2.0.0",
-    "description": "FBS college football score ticker for Flarum 2",
+    "description": "ESPN scores ticker for Flarum 2",
     "scripts": {
         "dev": "webpack --mode development --watch",
         "build": "webpack --mode production",
