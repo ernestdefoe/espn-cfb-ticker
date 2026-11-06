@@ -46,6 +46,7 @@ class Scoreboard
     protected const FRESH = 'ernestdefoe-espn-cfb-ticker.scoreboard';
     protected const STALE = 'ernestdefoe-espn-cfb-ticker.scoreboard.stale';
     protected const BACKOFF = 'ernestdefoe-espn-cfb-ticker.scoreboard.backoff';
+    protected const LOCK = 'ernestdefoe-espn-cfb-ticker.scoreboard.lock';
 
     protected const FRESH_TTL = 45;
     protected const STALE_TTL = 86400;
@@ -89,7 +90,7 @@ class Scoreboard
             $fresh = $this->cache->get($this->key(self::FRESH, $id));
             if (is_array($fresh)) {
                 $data[$id] = $fresh;
-            } elseif (! $this->cache->get($this->key(self::BACKOFF, $id))) {
+            } elseif (! $this->cache->get($this->key(self::BACKOFF, $id)) && $this->claim($id)) {
                 $due[] = $id;
             }
         }
@@ -126,6 +127,17 @@ class Scoreboard
         }
 
         return $out ? $out : null;
+    }
+
+    /**
+     * Whether this request refreshes the league. When the copy expires under
+     * a crowd, one request asks ESPN and the rest serve the last copy; with
+     * no copy to serve yet, everyone asks.
+     */
+    protected function claim(string $league): bool
+    {
+        return ! is_array($this->cache->get($this->key(self::STALE, $league)))
+            || $this->cache->add($this->key(self::LOCK, $league), true, self::FRESH_TTL / 3);
     }
 
     // College football keeps the keys it had before other leagues existed, so

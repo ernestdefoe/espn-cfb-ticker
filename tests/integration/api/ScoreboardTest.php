@@ -222,4 +222,20 @@ class ScoreboardTest extends TestCase
         $this->assertSame(['1'], array_column($byLeague['nfl'], 'id'), "Last weekend's finals stay");
         $this->assertSame([], $byLeague['mlb']);
     }
+
+    #[Test]
+    public function an_expired_copy_is_refreshed_by_one_request_while_the_rest_serve_it()
+    {
+        $this->espn([self::game('401'), self::game('402')]);
+        $cache = $this->app()->getContainer()->make(Cache::class);
+
+        $this->get();
+        $cache->forget('ernestdefoe-espn-cfb-ticker.scoreboard');
+        $cache->add('ernestdefoe-espn-cfb-ticker.scoreboard.lock', true, 15); // another request is refreshing
+        [$status, $body] = $this->get();
+
+        $this->assertSame(200, $status);
+        $this->assertSame('401', $body['leagues'][0]['events'][0]['id']);
+        $this->assertCount(1, $this->sent, 'Only the request holding the lock asks ESPN');
+    }
 }
