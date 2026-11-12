@@ -27,6 +27,10 @@
 .has-cfb-ticker-top    .App-content { padding-top: @cfb-ticker-height; }
 .has-cfb-ticker-bottom .App         { padding-bottom: @cfb-ticker-height; }
 
+// In-page anchor links stop below the ticker too. --cfb-ticker-bottom is only
+// set while a top ticker is showing.
+html { scroll-padding-top: var(--cfb-ticker-bottom, 0px); }
+
 // Core sticks these at the header's height, which is where the ticker is, so
 // they slid underneath it. --cfb-ticker-bottom is the ticker's lower edge,
 // kept current by forum/index.ts. `:where()` keeps core's specificity, so a

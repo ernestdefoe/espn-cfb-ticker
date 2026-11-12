@@ -1,5 +1,5 @@
 import app from 'flarum/forum/app';
-import { extend } from 'flarum/common/extend';
+import { extend, override } from 'flarum/common/extend';
 import HeaderPrimary from 'flarum/forum/components/HeaderPrimary';
 import CfbTicker from './components/CfbTicker';
 
@@ -61,6 +61,19 @@ function follow(root: HTMLElement) {
 }
 
 app.initializers.add('ernestdefoe-espn-cfb-ticker', () => {
+  // Core lands a jumped-to post just under the header (or the phone's top
+  // bar) and knows nothing of the ticker below it, so the post's first lines
+  // hid behind the bar. Land it under the ticker's lower edge instead, read
+  // live since the ticker follows a header that scrolls away. By module name:
+  // the post stream is loaded lazily.
+  override('flarum/forum/components/PostStream', 'getMarginTop', function (this: any, original: () => number) {
+    const margin = original();
+    const root = document.getElementById('cfb-ticker-root');
+    if (!margin || root?.dataset.position !== 'top') return margin;
+
+    return Math.max(margin, Math.round(root.getBoundingClientRect().bottom) + parseInt(this.$().css('margin-top'), 10));
+  });
+
   extend(HeaderPrimary.prototype, 'oncreate', function (this: HeaderPrimary) {
     // The ticker is mounted into its own element appended to <body>, not as
     // a child of HeaderPrimary, ON PURPOSE: it must persist across SPA route
