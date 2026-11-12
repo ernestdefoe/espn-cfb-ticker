@@ -27,9 +27,11 @@
 .has-cfb-ticker-top    .App-content { padding-top: @cfb-ticker-height; }
 .has-cfb-ticker-bottom .App         { padding-bottom: @cfb-ticker-height; }
 
-// In-page anchor links stop below the ticker too. --cfb-ticker-bottom is only
-// set while a top ticker is showing.
-html { scroll-padding-top: var(--cfb-ticker-bottom, 0px); }
+// In-page anchor links stop below the ticker too. Only while a top ticker
+// shows (forum/index.ts sets the class), so a theme's own scroll padding for
+// a pinned header stays when there is none. The ticker's lower edge already
+// sits under that header, so it covers both.
+html.cfb-ticker-top { scroll-padding-top: var(--cfb-ticker-bottom); }
 
 // Core sticks these at the header's height, which is where the ticker is, so
 // they slid underneath it. --cfb-ticker-bottom is the ticker's lower edge,

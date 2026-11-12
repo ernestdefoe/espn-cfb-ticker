@@ -22,6 +22,7 @@ import CfbTicker from './components/CfbTicker';
 function follow(root: HTMLElement) {
   const bars = ['.App-header', '.App-navigation'].map((s) => document.querySelector<HTMLElement>(s)).filter((el): el is HTMLElement => !!el);
   const html = document.documentElement;
+  html.classList.add('cfb-ticker-top');
   let current = '';
   let queued = false;
 
