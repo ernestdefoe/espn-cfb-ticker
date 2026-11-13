@@ -42,6 +42,12 @@ html.cfb-ticker-top { scroll-padding-top: var(--cfb-ticker-bottom); }
     :where(.has-cfb-ticker-top) .sideNav > ul.affix {
         top: ~'max(var(--header-height), var(--cfb-ticker-bottom, 0px))';
     }
+
+    // Masthead's scrubber rail sticks 24px under its pinned header, which is
+    // where the ticker is: keep the same 24px, under the ticker instead.
+    html.cfb-ticker-top .DiscussionPage .Page-content > .MastheadRail {
+        top: calc(var(--cfb-ticker-bottom) + 24px);
+    }
 }
 
 // ── Wrapper ──────────────────────────────────────────────
