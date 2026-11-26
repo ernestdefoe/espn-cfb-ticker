@@ -13,7 +13,10 @@ export default [
     // A plain function, not an arrow: core calls it with the settings page as
     // `this`, and the page's own setting() stream is the only one it saves.
     .customSetting(function (this: any) {
-      return m(LeaguePicker, { value: this.setting('ernestdefoe-espn-cfb-ticker.leagues', 'college-football') });
+      return m(LeaguePicker, {
+        value: this.setting('ernestdefoe-espn-cfb-ticker.leagues', 'college-football'),
+        top25: this.setting('ernestdefoe-espn-cfb-ticker.top25', ''),
+      });
     })
     .setting(() => ({
       setting: 'ernestdefoe-espn-cfb-ticker.position',

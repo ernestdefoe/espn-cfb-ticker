@@ -40,6 +40,10 @@ class Scoreboard
 
     public const DEFAULT = 'college-football';
 
+    // The college leagues ESPN ranks (AP Top 25): only these can be cut down
+    // to ranked games.
+    public const RANKED = ['college-football', 'mens-college-basketball', 'womens-college-basketball'];
+
     // MMA cards are one event of many bouts; each bout is drawn like a game.
     protected const FIGHTS = ['ufc', 'pfl'];
 
@@ -68,6 +72,33 @@ class Scoreboard
         $known = array_values(array_filter(array_keys(self::LEAGUES), fn ($id) => in_array($id, $picked, true)));
 
         return $known ?: [self::DEFAULT];
+    }
+
+    /** The ranked leagues in a comma-joined setting that show only Top 25 games. */
+    public static function topOnly(?string $setting): array
+    {
+        $picked = array_map('trim', explode(',', (string) $setting));
+
+        return array_values(array_filter(self::RANKED, fn ($id) => in_array($id, $picked, true)));
+    }
+
+    /**
+     * Only the games with a ranked team in them. ESPN ranks the rest 99; out
+     * of season nobody is ranked, so the league comes back empty and the bar
+     * leaves it out.
+     */
+    public static function ranked(array $events): array
+    {
+        return array_values(array_filter($events, function ($event) {
+            foreach ((array) Arr::get($event, 'competitions.0.competitors', []) as $c) {
+                $rank = (int) Arr::get($c, 'curatedRank.current');
+                if ($rank >= 1 && $rank <= 25) {
+                    return true;
+                }
+            }
+
+            return false;
+        }));
     }
 
     public static function url(string $league): string

@@ -16,6 +16,7 @@ ernestdefoe-espn-cfb-ticker:
         nhl: NHL
         ufc: UFC (every bout on the next or current card)
         pfl: PFL (every bout on the next or current card)
+      top25_label: Only games with a Top 25 team
       position_label: Ticker Position
       position_help: Where the ticker appears on the page.
       position_top: Top of page
@@ -34,6 +35,7 @@ ernestdefoe-espn-cfb-ticker:
       load_error: Could not load scores.
       no_games: No FBS games scheduled today.
       no_games_any: No games scheduled today.
+      no_ranked_games: No Top 25 games today.
     leagues:
       college-football: CFB
       nfl: NFL

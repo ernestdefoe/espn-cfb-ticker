@@ -266,6 +266,21 @@ html.cfb-ticker-top { scroll-padding-top: var(--cfb-ticker-bottom); }
     .fa-solid { font-size: 10px; }
 }
 
+// The ticker's own sport icons. Forums often turn a Font Awesome class into a
+// tag's picture (`.fa-hockey-puck::before { content: url(...) }`), which then
+// showed in the ticker too. The id outranks such a rule: the glyph and its
+// box are set again here.
+#cfb-ticker-root .CfbTicker-icon {
+    background: none;
+    width: auto;
+    height: auto;
+
+    &::before {
+        content: var(--fa);
+        background: none;
+    }
+}
+
 // ── Fights: the winner stands out, since a bout has no score ──
 .CfbTicker-abbr--winner { color: #fff; font-weight: 700; }
 .CfbTicker-abbr--loser  { color: rgba(255, 255, 255, 0.5); }

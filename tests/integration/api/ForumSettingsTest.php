@@ -34,6 +34,7 @@ class ForumSettingsTest extends TestCase
         $this->assertSame(40, $forum['ernestdefoe-espn-cfb-ticker.scrollSpeed']);
         $this->assertFalse($forum['ernestdefoe-espn-cfb-ticker.avocado_compat']);
         $this->assertSame(['college-football'], $forum['ernestdefoe-espn-cfb-ticker.leagues'], 'An update must not change what a forum shows');
+        $this->assertSame([], $forum['ernestdefoe-espn-cfb-ticker.top25'], 'Top 25 only is off until an admin turns it on');
     }
 
     #[Test]
@@ -68,5 +69,13 @@ class ForumSettingsTest extends TestCase
         $this->setting('ernestdefoe-espn-cfb-ticker.leagues', '');
 
         $this->assertSame(['college-football'], $this->forum()['ernestdefoe-espn-cfb-ticker.leagues']);
+    }
+
+    #[Test]
+    public function top_25_only_arrives_for_the_ranked_leagues_alone()
+    {
+        $this->setting('ernestdefoe-espn-cfb-ticker.top25', 'nba,womens-college-basketball,college-football');
+
+        $this->assertSame(['college-football', 'womens-college-basketball'], $this->forum()['ernestdefoe-espn-cfb-ticker.top25']);
     }
 }

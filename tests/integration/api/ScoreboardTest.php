@@ -64,6 +64,19 @@ class ScoreboardTest extends TestCase
         ]]]));
     }
 
+    /** One game per [away rank, home rank] pair; 99 is ESPN's "unranked". */
+    private static function slate(array $ranks): Response
+    {
+        return new Response(200, [], json_encode(['events' => array_map(fn ($i) => [
+            'id' => (string) $i,
+            'status' => ['type' => ['state' => 'pre', 'shortDetail' => 'Sat 12:00 PM']],
+            'competitions' => [['competitors' => [
+                ['homeAway' => 'away', 'curatedRank' => ['current' => $ranks[$i][0]], 'team' => ['abbreviation' => 'A'.$i]],
+                ['homeAway' => 'home', 'curatedRank' => ['current' => $ranks[$i][1]], 'team' => ['abbreviation' => 'H'.$i]],
+            ]]],
+        ], array_keys($ranks))]));
+    }
+
     private function get(string $query = ''): array
     {
         $response = $this->send($this->request('GET', '/api/espn-cfb-ticker/scoreboard'.$query));
@@ -237,5 +250,36 @@ class ScoreboardTest extends TestCase
         $this->assertSame(200, $status);
         $this->assertSame('401', $body['leagues'][0]['events'][0]['id']);
         $this->assertCount(1, $this->sent, 'Only the request holding the lock asks ESPN');
+    }
+
+    #[Test]
+    public function top_25_only_keeps_the_games_with_a_ranked_team_from_the_same_copy()
+    {
+        $this->setting('ernestdefoe-espn-cfb-ticker.leagues', 'college-football,nfl');
+        $this->setting('ernestdefoe-espn-cfb-ticker.top25', 'college-football,nfl');
+        $this->espn([self::slate([[99, 99], [12, 99], [99, 25], [26, 99], [1, 4]]), self::slate([[99, 99]])]);
+
+        [$status, $body] = $this->get();
+
+        $this->assertSame(200, $status);
+        $this->assertSame(['1', '2', '4'], array_column($body['leagues'][0]['events'], 'id'), 'Ranked 1 to 25 on either side; 26 and 99 are not');
+        $this->assertCount(1, $body['leagues'][1]['events'], 'Only the college leagues are ranked; the NFL is left whole');
+
+        [, $again] = $this->get();
+        $this->assertSame($body, $again);
+        $this->assertCount(2, $this->sent, 'One call per league, as without the filter; the next view reads the cached copy');
+    }
+
+    #[Test]
+    public function top_25_only_with_nobody_ranked_leaves_the_league_empty_not_an_error()
+    {
+        $this->setting('ernestdefoe-espn-cfb-ticker.leagues', 'mens-college-basketball');
+        $this->setting('ernestdefoe-espn-cfb-ticker.top25', 'mens-college-basketball');
+        $this->espn([self::slate([[99, 99], [99, 99]])]);
+
+        [$status, $body] = $this->get();
+
+        $this->assertSame(200, $status);
+        $this->assertSame([], $body['leagues'][0]['events'], 'The bar leaves an empty league out');
     }
 }

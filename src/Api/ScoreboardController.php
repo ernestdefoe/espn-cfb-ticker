@@ -27,6 +27,14 @@ class ScoreboardController implements RequestHandlerInterface
             return new JsonResponse(['errors' => [['status' => '502', 'code' => 'scores_unavailable']]], 502);
         }
 
+        // From the copy already fetched: the filter costs ESPN nothing.
+        $topOnly = Scoreboard::topOnly($this->settings->get('ernestdefoe-espn-cfb-ticker.top25'));
+        foreach ($leagues as &$league) {
+            if (in_array($league['id'], $topOnly, true)) {
+                $league['events'] = Scoreboard::ranked($league['events']);
+            }
+        }
+
         return new JsonResponse(['leagues' => $leagues]);
     }
 }

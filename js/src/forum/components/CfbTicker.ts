@@ -171,6 +171,7 @@ export default class CfbTicker extends Component {
     // One league keeps the bar as it always was: its name in the badge, no
     // tags in the track. Several get a tag at the head of each league's games.
     const single = chosen.length === 1 ? chosen[0] : null;
+    const top25 = app.forum.attribute<string[]>('ernestdefoe-espn-cfb-ticker.top25') || [];
     const games = this.leagues.reduce((n, l) => n + l.games.length, 0);
 
     let trackContent: Mithril.Children;
@@ -179,10 +180,8 @@ export default class CfbTicker extends Component {
     } else if (this.error) {
       trackContent = m('span.CfbTicker-error', this.error);
     } else if (games === 0) {
-      trackContent = m(
-        'span.CfbTicker-empty',
-        app.translator.trans('ernestdefoe-espn-cfb-ticker.forum.ticker.' + (single === 'college-football' ? 'no_games' : 'no_games_any'))
-      );
+      const empty = single && top25.includes(single) ? 'no_ranked_games' : single === 'college-football' ? 'no_games' : 'no_games_any';
+      trackContent = m('span.CfbTicker-empty', app.translator.trans('ernestdefoe-espn-cfb-ticker.forum.ticker.' + empty));
     } else {
       const duration = Math.max(10, games * speed);
       // Twice over for a seamless loop. Built once per copy: Mithril cannot
@@ -190,7 +189,9 @@ export default class CfbTicker extends Component {
       const chips = (copy: string) =>
         this.leagues.flatMap((l) => [
           // Spread, not a null hole: a keyed list may not mix in unkeyed slots.
-          ...(single ? [] : [m('span.CfbTicker-league', { key: copy + l.id }, [m('i.fa-solid.' + LEAGUES[l.id].icon), leagueName(l.id)])]),
+          ...(single
+            ? []
+            : [m('span.CfbTicker-league', { key: copy + l.id }, [m('i.CfbTicker-icon.fa-solid.' + LEAGUES[l.id].icon), leagueName(l.id)])]),
           ...l.games.map((g) => this.gameChip(g, copy + l.id + ':', !!LEAGUES[l.id].fight)),
         ]);
       trackContent = m('div.CfbTicker-track', { style: 'animation-duration:' + duration + 's' }, [...chips('a'), ...chips('b')]);
@@ -198,7 +199,7 @@ export default class CfbTicker extends Component {
 
     return m('div.CfbTicker.CfbTicker--' + position, [
       m('div.CfbTicker-label', [
-        m('i.fa-solid.' + (single ? LEAGUES[single].icon : 'fa-trophy')),
+        m('i.CfbTicker-icon.fa-solid.' + (single ? LEAGUES[single].icon : 'fa-trophy')),
         m(
           'span',
           single === 'college-football' || !single
